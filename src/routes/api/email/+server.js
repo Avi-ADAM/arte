@@ -38,16 +38,18 @@ async function sendMail(name = "",phone = "",client={},cart=[],kind=true){
 
   console.log(options,28)
   transporter.sendMail(options);
-  transporter.verify(function(err, success) {
+console.log("Starting email verification...");
+transporter.verify(function (err, success) {
   if (err) {
-    console.log("connection error",err)
+    console.error("Connection error:", err); // Use console.error for better visibility in logs
     return 'error';
-} 
-else {
-  console.log("אחלה",success)
+  } else {
+    console.log("Verification success:", success);
     return 'OK';
+  }
+});
+console.log("Verification function executed.");
 }
-});}
 
 export async function POST({ request }) {
 const data = await request.json()
