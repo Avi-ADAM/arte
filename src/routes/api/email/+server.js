@@ -30,7 +30,7 @@ async function sendMail(name = "",phone = "",client={},cart=[],kind=true){
 
   const options = {
     from:"s0528844911@gmail.com",
-    to: 's0528844911@gmail.com',
+    to: 'babayofnet@gmail.com',
     subject: 'פניה חדשה',
     html: emailHtml
   };
