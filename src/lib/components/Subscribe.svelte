@@ -32,8 +32,8 @@ let a = $state(false)
             <div class="row">
                 <div class="col-lg-8">
                     <div class="section-heading">
-                        <h2>מוזמנים ליצור איתנו קשר </h2>
-                        <span>הצעת מחיר או כל שאלה, מוזמנים לדבר איתנו בווטסאפ 050-2374217</span>
+                        <h2>מוזמנים ליצור איתי קשר </h2>
+                        <span>הצעת מחיר או כל שאלה, מוזמנים לדבר איתי בווטסאפ 050-2374217</span>
                     </div>
                     <form id="subscribe" action="" method="get">
                         <div class="row">
@@ -63,15 +63,15 @@ let a = $state(false)
                     <div class="row">
                         <div class="col-6">
                             <ul>
-                                <li>איסוף הזמנות ראשון לציון<br><span>הגעה בתיאום מראש בלבד</span></li>
+                                <li> כתובתנו ראשון לציון<br><span>הגעה בתיאום מראש בלבד</span></li>
                                 <li>טלפון | ווצאפ<br><span>050-2374217</span></li>
-                                <li>כתובתנו ראשון לציון<br><span>הגעה בתיאום מראש בלבד</span></li>
+                                <li>. . .<br><span>. . . .</span></li>
                             </ul>
                         </div>
                         <div class="col-6">
                             <ul>
                                 <li>שעות פעילות:<br><span>08:00  - 20:00 </span></li>
-                                <li>דוא"ל<br><span><a href="mailto:arte.bsharon@gmail.com">arte.bsharon@gmail.com</a></span></li>
+                                <li>דוא"ל<br><span><a href="mailto:s0528844911@gmail.com">s0528844911@gmail.com</a></span></li>
                                 <li>רשתות חברתיות<br><span><a href="https://www.facebook.com/profile.php?id=61557695587039">Facebook</a>, <a href="https://www.instagram.com/arte.bsharon/">Instagram</a>, <a href="#">Behance</a>, <a href="#">Linkedin</a></span></li>
                             </ul>
                         </div>

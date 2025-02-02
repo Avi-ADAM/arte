@@ -1,4 +1,5 @@
 <script>
+  import { cart } from '$lib/stores/cart.svelte.js';
     let client = $state({
         name:"",
         lastName:"",
@@ -7,16 +8,105 @@
         country:"",
         state:"",
         zip:"",
+        phone:""
         })
+        let loading = $state(false);
+        let {amount = 0} = $props();
+//	"raw": "{\r\n    \"request\": {\r\n  
+//       \"Invoice4UUserApiKey\": \"\",\r\n   
+//      \"Type\": \"1\",\r\n    
+//     \"CreditCardCompanyType\": \"1\",\r\n    
+//     \"FullName\": \"Client Name\",\r\n   
+//      \"Phone\": \"0500000000\",\r\n  
+//       \"Email\": \"test@test.com\",\r\n 
+//        \"Sum\": \"1\",\r\n  
+//       \"Description\": \"Invoice4U Clearing\",\r\n     
+//    \"PaymentsNum\": \"1\",\r\n       
+//  \"Currency\": \"ILS\",\r\n  
+//       \"OrderIdClientUsage\": \"order id if needed\",\r\n  
+//       \"IsDocCreate\": \"true\",\r\n     
+//    \"DocHeadline\": \"Document headline\",\r\n    
+//     \"Comments\": \"Document comments\",\r\n    
+//     \"IsManualDocCreationsWithParams\": \"false\",\r\n   
+//      \"DocItemQuantity\": \"1|1\",\r\n   
+//      \"DocItemPrice\": \"10|10\",\r\n     
+//    \"DocItemTaxRate\": \"17|17\",\r\n     
+//    \"IsItemsBase64Encoded\": \"false\",\r\n    
+//     \"DocItemName\": \"first item|second item\",\r\n  
+//       \"IsGeneralClient\": \"true\",\r\n    
+//     \"IsAutoCreateCustomer\": \"true\",\r\n     
+//    \"CallBackUrl\": \"https://webhook.site/123153\",\r\n     
+//    \"ReturnUrl\": \"https://www.invoice4u.co.il/\",\r\n    
+//     \"AddToken\": \"false\",\r\n    
+//     \"AddTokenAndCharge\": \"false\",\r\n    
+//     \"ChargeWithToken\": \"false\",\r\n  
+//       \"Refund\": \"false\",\r\n   
+//      \"IsStandingOrderClearance\" : \"false\",\r\n     
+//    \"StandingOrderDuration\" : \"0\"\r\n    }\r\n}"
+
+  async function handlePayment() {
+    console.log(client,cart.cart)
+    localStorage.setItem('client', JSON.stringify(client));
+    if(amount <= 0) {
+        alert('אי אפשר לשלם על סכום שלילי או אפס');
+        return;
+    }
+    if(!client.phone) {
+        alert('יש להזין מספר טלפון תקין');
+        return;
+    }
+    if(!client.name && !client.lastName) {
+        alert('יש להזין מספר טלפון תקין');
+        return;
+    }
+    if(loading) return;
+    loading = true;
+      const paymentData = {
+        FullName: client.name + " " + client.lastName,
+        Phone: client.phone,
+        Email: client.email,
+        Sum: amount,
+      };
+      let t
+      try {
+        const response = await fetch
+    ('/api/slika', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+    })
+    const result = await response.json();
+            
+            if (result.Errors) {
+                throw new Error(result.Errors);
+            }
+            console.log('Payment response:', result); // Debug log
+
+            const paymentId = result.d.OpenInfo.find(info => info.Key === 'PaymentId')?.Value;
+            
+            // Store payment ID if needed
+            localStorage.setItem('lastPaymentId', paymentId);
+            
+            // Redirect to payment page
+            window.location.href = result.d.ClearingRedirectUrl;
+            
+        } catch (error) {
+            alert('Payment failed: ' + error?.message);
+        }
+  }
+  import { cities } from './cities.js';
+
     </script>
-    <main dir="rtl">
-        <div class="container our px-4 px-lg-5" >
+    <main>
+        <div class="container px-4 px-lg-5  mx-auto" >
         <div class="py-5 text-center">
             <img class="d-block mx-auto mb-4" src="/images/logo.png" alt="" width="195" height="59">
             <h2> סיום רכישה</h2>
         </div>
 
-        <div class="row g-3"dir="rtl">
+        <div class="" dir="rtl">
       <!-- <div class="col-md-5 col-lg-4 order-md-last">
         <h4 class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-body-secondary">עגלת הקניות</span>
@@ -50,7 +140,7 @@
           </div>
         </form>
       </div>-->
-      <div class="col-md-7 col-lg-8 text-right" dir="rtl">
+      <div class=" mx-auto text-right" dir="rtl">
         <h4 class="mb-3 text-right">כתובת למשלוח</h4>
         <form class="needs-validation">
           <div class="row g-3">
@@ -100,18 +190,21 @@
 
             <div class="col-md-4">
               <label for="state" class="form-label">עיר</label>
-              <select class="form-select" id="state" required="">
+              <select bind:value={client.city} class="form-select" id="state" required="">
                 <option value="">בחר...</option>
-                <option>ירושלים</option>
-              </select>
+                {#each cities as city}
+                <option value={city}>{city}</option >
+            {/each}
+                        </select>
               <div class="invalid-feedback">
                 יש לבחור עיר תקינה
               </div>
             </div>
 
             <div class="col-md-3">
+
               <label for="zip" class="form-label">מיקוד</label>
-              <input type="text" class="form-control" id="zip" placeholder="" required="">
+              <input bind:value={client.zip} type="text" class="form-control" id="zip" placeholder="" required>
               <div class="invalid-feedback">
                 נדרש מיקוד.
               </div>
@@ -119,62 +212,26 @@
           </div>
 
           <hr class="my-4">
-
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="save-info">
-            <label class="form-check-label" for="save-info">שמור את המידע הזה לפעם הבאה</label>
+          <label for="phone" class="form-label">מספר טלפון</label>
+          <input type="text" class="form-control" id="phone" placeholder="050-1234567" required bind:value={client.phone}>
+          <div class="invalid-feedback">
+            נדרש להוסיף טלפון.
           </div>
+    <br>
 
-          <hr class="my-4">
 
-            <h4 class="mb-3">פרטי כרטיס אשראי</h4>
-          <div class="row gy-3">
-            <div class="col-md-6">
-              <label for="cc-name" class="form-label">השם על הכרטיס</label>
-              <input type="text" class="form-control" id="cc-name" placeholder="" required="">
-              <small class="text-body-secondary">שם מלא כפי שמוצג על הכרטיס</small>
-              <div class="invalid-feedback">
-                נדרש שם על הכרטיס
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="cc-number" class="form-label">מספר כרטיס</label>
-              <input type="text" class="form-control" id="cc-number" placeholder="" required="">
-              <div class="invalid-feedback">
-                נדרש מספר כרטיס אשראי
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label for="cc-expiration" class="form-label">תוקף</label>
-              <input type="text" class="form-control" id="cc-expiration" placeholder="" required="">
-              <div class="invalid-feedback">
-                נדרש תאריך תפוגה
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label for="cc-cvv" class="form-label">CVV</label>
-              <input type="text" class="form-control" id="cc-cvv" placeholder="" required="">
-              <div class="invalid-feedback">
-                נדרש קוד אימות
-              </div>
-            </div>
-          </div>
-
-          <hr class="my-4">
-
-          <button class="w-100 btn btn-primary btn-lg" type="submit">לתשלום</button>
+          <button class="w-100 btn btn-primary btn-lg" type="submit" onclick={handlePayment}>{#if loading} ... {:else} לתשלום {/if}</button>
         </form>
       </div>
     </div>
   </main>
-  <style>
+<style>
     .our{
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
+        margin-left: auto;
+        margin-right: auto;
     }
   </style>
